@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Zargus — Privacy Policy</title>
+<style>body{font:16px/1.6 -apple-system,Segoe UI,Roboto,sans-serif;color:#1c2733;max-width:720px;margin:40px auto;padding:0 20px}h1{color:#b3251c}code{background:#f0f2f5;padding:1px 5px;border-radius:4px}</style>
+</head><body>
+<h1>Zargus — Privacy Policy</h1>
+<p>Effective date: October 14, 2026. This policy describes how the Zargus Android app ("the app") and the optional Zargus Cloud service ("the Cloud", <code>push.zargus.app</code> / its current endpoint) handle data. Zargus is an open, self-hostable monitoring client for Zabbix servers.</p>
+
+<h2>What stays on your device</h2>
+<p>Your Zabbix server addresses, usernames, passwords, API tokens, and SSO session credentials are stored only on your device, encrypted with the Android Keystore. Problem data shown in the app is cached locally and cleared when you remove a server or uninstall the app. The app contains no analytics, no advertising, and no tracking of any kind.</p>
+
+<h2>Direct connections to your own servers</h2>
+<p>Monitoring, problem refreshes, and actions (acknowledge, close, suppress) travel directly from the app to the Zabbix servers you configure. That traffic never passes through Zargus infrastructure.</p>
+
+<h2>Zargus Cloud (optional, only if you enable it)</h2>
+<p>If you enable Zargus Cloud instant push, the app generates a random account identifier and key, and registers a Firebase Cloud Messaging device token so alerts can be delivered to your device. If you subscribe, Google processes the payment (Google Play Billing); we receive only a purchase token, which our server verifies with Google to activate your subscription. To deliver pushes, the webhook on your Zabbix server sends minimal alert metadata — the server label you configured, problem name, host name, severity, and event id — through the Zargus relay to your device. This is processed in memory and not stored. Webhook API keys are stored only as cryptographic hashes.</p>
+
+<h2>Self-hosted push</h2>
+<p>If you use your own relay deployment or ntfy, no data reaches Zargus infrastructure at all.</p>
+
+<h2>What we never do</h2>
+<p>We do not sell, rent, or share your data with third parties for marketing or any other purpose. We do not collect contacts, location, photos, browsing history, or app usage analytics.</p>
+
+<h2>Data deletion</h2>
+<p>Uninstalling the app removes all local data. To delete a Zargus Cloud account (identifier, key hash, device token, purchase token reference), email <a href="mailto:dusk@sourk9.com">dusk@sourk9.com</a> from any address with the account identifier shown in the app's Zargus Cloud screen; we delete it within 7 days.</p>
+
+<h2>Third-party processors</h2>
+<p>Google LLC provides Play Billing and Firebase Cloud Messaging delivery, under Google's own terms and privacy policy. No other third parties are involved.</p>
+
+<h2>Children</h2>
+<p>Zargus is an IT operations tool and is not directed at children under 13.</p>
+
+<h2>Contact</h2>
+<p>Questions or deletion requests: <a href="mailto:dusk@sourk9.com">dusk@sourk9.com</a>.</p>
+</body></html>
