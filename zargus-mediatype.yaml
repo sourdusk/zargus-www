@@ -1,0 +1,47 @@
+zabbix_export:
+  version: '7.0'
+  media_types:
+    - name: Zargus push
+      type: WEBHOOK
+      description: "Instant push alerts to the Zargus Android app (Zargus Cloud). Setup: change the endpoint, apiKey and topic parameters to the values shown in the app under Settings > Zargus Cloud, then add this media type to your user (User settings > Media) and include it in a trigger action (Problem/Recovery/Update operations)."
+      parameters:
+        - name: mode
+          value: 'relay'
+        - name: endpoint
+          value: 'https://YOUR-FUNCTION-URL/api/send'
+        - name: apiKey
+          value: 'YOUR-ZARGUS-APIKEY'
+        - name: topic
+          value: 'YOUR-ZARGUS-ACCOUNTID'
+        - name: serverName
+          value: 'zabbix'
+        - name: event_id
+          value: '{EVENT.ID}'
+        - name: event_name
+          value: '{EVENT.NAME}'
+        - name: event_value
+          value: '{EVENT.VALUE}'
+        - name: event_update_status
+          value: '{EVENT.UPDATE.STATUS}'
+        - name: host_name
+          value: '{HOST.NAME}'
+        - name: severity
+          value: '{EVENT.NSEVERITY}'
+      script: "/**\n * Zargus push webhook (media type \"Webhook\", Zabbix >= 6.0)\n *\n * Sends a small JSON ping to either:\n *  - \"relay\" mode: a Firebase Cloud Function relay that publishes to the FCM\n *    topic the app subscri to (play flavor), or\n *  - \"ntfy\" mode: an ntfy topic URL directly (foss flavor / UnifiedPush).\n *\n * The app treats push as a PING ONLY: on receipt it immediately syncs against\n * the Zabbix API, which stays the source of truth. No credentials are sent.\n *\n * Install (per Zabbix server): see docs/push-setup.md\n */\n\nvar ZBX_PUSH_WEBHOOK_VERSION = '1.0.0';\n\nfunction buildBody(p) {\n    // In Zabbix webhooks the JSON in `value` contains the user parameters\n    // WITH event macros substituted (see the parameter list in the docs).\n    var type = 'problem';\n    if (String(p.event_value) === '0') {\n        type = 'recovery';\n    } else if (String(p.event_update_status) === '1') {\n        type = 'update';\n    }\n    return {\n        topic: p.topic || '',\n        type: type,\n        serverName: p.serverName || 'zabbix',\n        eventId: p.event_id || '',\n        eventName: p.event_name || 'Problem',\n        hostName: p.host_name || '',\n        severity: p.severity !== undefined ? Number(p.severity) : 0,\n        version: ZBX_PUSH_WEBHOOK_VERSION\n    };\n}\n\n// HTTP object + method names differ across Zabbix generations:\n// <= 6.0: new CurlHttpRequest() with AddHeader/Post/Status\n// >= 6.2: new HttpRequest() with addHeader/post/getStatus\nfunction makeHttp() {\n  var r = (typeof HttpRequest !== 'undefined') ? new HttpRequest() : new CurlHttpRequest();\n  return {\n    header: function (n, v) { (r.addHeader || r.AddHeader).call(r, n, v); },\n    post: function (url, data) { return (r.post || r.Post).call(r, url, data); },\n    status: function () { return (r.getStatus || r.Status).call(r); },\n  };\n}\n\nfunction postRelay(p, body) {\n    var req = makeHttp();\n    req.header('Content-Type: application/json');\n    if (p.apiKey) {\n        req.header('X-Api-Key: ' + p.apiKey);\n    }\n    var resp = req.post(p.endpoint, JSON.stringify(body));\n    if (req.status() < 200 || req.status() >= 300) {\n        throw 'relay responded HTTP ' + req.status() + ': ' + resp;\n    }\n    return resp;\n}\n\nfunction postNtfy(p, body) {\n    var req = makeHttp();\n    req.header('Content-Type: application/json');\n    if (p.apiKey) {\n        req.header('Authorization: Bearer ' + p.apiKey);\n    }\n    var title = '[' + body.serverName + '] ' + body.eventName;\n    var message = body.hostName ? body.hostName + ': ' + body.eventName : title;\n    // ntfy JSON publish: POST to root, topic in body (works for ntfy.sh and self-hosted)\n    var resp = req.post(p.endpoint, JSON.stringify({\n        topic: p.ntfyTopic || '',\n        title: title,\n        message: message,\n        tags: [body.type, 'sev' + body.severity],\n        priority: body.severity >= 4 ? 4 : (body.severity >= 3 ? 3 : 2)\n    }));\n    if (req.status() < 200 || req.status() >= 300) {\n        throw 'ntfy responded HTTP ' + req.status() + ': ' + resp;\n    }\n    return resp;\n}\n\ntry {\n    var p = JSON.parse(value);\n    var body = buildBody(p);\n    if (String(p.mode) === 'ntfy') {\n        postNtfy(p, body);\n    } else {\n        postRelay(p, body);\n    }\n    return 'OK ' + body.type + ' event ' + body.eventId;\n} catch (err) {\n    Zabbix.Log(4, 'Zargus webhook failed: ' + err);\n    throw 'Zargus webhook failed: ' + err;\n}\n"
+      timeout: 30s
+      message_templates:
+        - event_source: TRIGGERS
+          operation_mode: PROBLEM
+          subject: 'Problem: {EVENT.NAME}'
+          message: 'Problem started at {EVENT.TIME} on {HOST.NAME}'
+        - event_source: TRIGGERS
+          operation_mode: RECOVERY
+          subject: 'Resolved: {EVENT.NAME}'
+          message: 'Problem resolved at {EVENT.TIME} on {HOST.NAME}'
+        - event_source: TRIGGERS
+          operation_mode: UPDATE
+          subject: 'Updated: {EVENT.NAME}'
+          message: 'Problem updated at {EVENT.TIME}'
+      status: ENABLED
+
+

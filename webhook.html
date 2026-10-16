@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Zargus — Webhook setup</title>
+<style>body{font:16px/1.6 -apple-system,Segoe UI,Roboto,sans-serif;color:#e3e2e2;background:#131416;max-width:720px;margin:40px auto;padding:0 20px}h1,h2{color:#e45959}code{background:#1c2733;padding:2px 6px;border-radius:4px;font-size:14px}pre{background:#1c2733;padding:14px;border-radius:8px;overflow-x:auto}a{color:#ffb4a9}.step{background:#1c2733;padding:14px 18px;border-radius:8px;margin:14px 0}.step b{color:#ffb4a9}</style>
+</head><body>
+<h1>Zargus webhook setup</h1>
+<p>Get instant push alerts from your Zabbix server to the Zargus app. Takes about two minutes.</p>
+
+<div class="step"><b>1.</b> <a href="zargus-mediatype.yaml">Download the media type template</a> (right-click → save).</div>
+
+<div class="step"><b>2.</b> In Zabbix: <code>Administration → Media types → Import</code> (arrow icon, top right). Upload the file. This creates the "Zargus push" media type with everything pre-configured.</div>
+
+<div class="step"><b>3.</b> Open the imported media type and replace three parameter values with the ones shown in the app under <code>Settings → Zargus Cloud</code>:
+<ul>
+<li><code>endpoint</code> — your push endpoint URL</li>
+<li><code>apiKey</code> — your API key</li>
+<li><code>topic</code> — your account ID</li>
+</ul>
+Also set <code>serverName</code> to whatever label you want the server to show as in the app. Save.</div>
+
+<div class="step"><b>4.</b> <code>User settings → Media → Add</code> — type "Zargus push", any "send to" value. <b>Without this step nothing fires.</b></div>
+
+<div class="step"><b>5.</b> <code>Configuration → Actions → Trigger actions</code> — create an action that sends a message via "Zargus push" to your user, with <b>Problem</b>, <b>Recovery</b>, and <b>Update operations</b> all enabled.</div>
+
+<div class="step"><b>6.</b> Fire a test problem and feel it on your phone.</div>
+
+<h2>Self-hosted instead?</h2>
+<p>If you run your own relay or use ntfy, the same template works: set <code>mode</code> to <code>ntfy</code> and point the parameters at your own infrastructure. Details in the app's repository documentation.</p>
+
+<h2>Notes</h2>
+<p>The webhook script is compatible with Zabbix 6.0 through 7.4+ (handles both HTTP object generations). Messages carry only problem names, hosts, and severity — no credentials — and the app treats every push as a ping: it immediately syncs against your Zabbix API, which stays the source of truth.</p>
+<p><a href="index.html">← back</a></p>
+</body></html>
