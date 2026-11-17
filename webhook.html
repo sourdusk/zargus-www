@@ -24,8 +24,15 @@ Also set <code>serverName</code> to whatever label you want the server to show a
 
 <div class="step"><b>6.</b> Fire a test problem and feel it on your phone.</div>
 
+<h2>Several people, one Zabbix server</h2>
+<p>One media type serves the whole team. The admin keeps <code>apiKey</code>/<code>topic</code> at their own values (or the placeholders), and everyone else routes notifications to their own account through the <b>Send to</b> field of their user media:</p>
+<div class="step"><b>1.</b> Each person: in the app, <code>Settings → Zargus Cloud</code> → copy the <code>Send to (team servers)</code> value.</div>
+<div class="step"><b>2.</b> In Zabbix, <code>User settings → Media → Add</code> — type "Zargus push", paste the value into <b>Send to</b>.</div>
+<div class="step"><b>3.</b> The trigger action sends to your users (or user group) — Zabbix runs the webhook once per recipient, each with their own Send to.</div>
+<p>Each person needs their own Zargus Cloud subscription (it's per account). The Send to value contains that person's API key — it only authorizes pushes to their own devices, never anyone else's.</p>
+
 <h2>Self-hosted instead?</h2>
-<p>If you run your own relay or use ntfy, the same template works: set <code>mode</code> to <code>ntfy</code> and point the parameters at your own infrastructure. Details in the app's repository documentation.</p>
+<p>If you run your own relay or use ntfy, the same template works: set <code>mode</code> to <code>ntfy</code> and point the parameters at your own infrastructure.</p>
 
 <h2>Notes</h2>
 <p>The webhook script is compatible with Zabbix 6.0 through 7.4+ (handles both HTTP object generations). Messages carry only problem names, hosts, and severity — no credentials — and the app treats every push as a ping: it immediately syncs against your Zabbix API, which stays the source of truth.</p>
