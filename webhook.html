@@ -10,13 +10,12 @@
 
 <div class="step"><b>2.</b> In Zabbix: <code>Administration → Media types → Import</code> (arrow icon, top right). Upload the file. This creates the "Zargus push" media type with everything pre-configured.</div>
 
-<div class="step"><b>3.</b> Open the imported media type and replace three parameter values with the ones shown in the app under <code>Settings → Zargus Cloud</code>:
+<div class="step"><b>3.</b> Open the imported media type and replace two parameter values with the ones shown in the app under <code>Settings → Zargus Cloud</code>:
 <ul>
-<li><code>endpoint</code> — your push endpoint URL</li>
-<li><code>apiKey</code> — your API key</li>
 <li><code>topic</code> — your account ID</li>
+<li><code>apiKey</code> — your API key</li>
 </ul>
-Also set <code>serverName</code> to whatever label you want the server to show as in the app. Save.</div>
+The <code>endpoint</code> is pre-configured for Zargus Cloud — leave it as-is (self-hosted relay: point it at your own). Also set <code>serverName</code> to whatever label you want the server to show as in the app. Save.</div>
 
 <div class="step"><b>4.</b> <code>User settings → Media → Add</code> — type "Zargus push", any "send to" value. <b>Without this step nothing fires.</b></div>
 

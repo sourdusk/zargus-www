@@ -3,16 +3,16 @@ zabbix_export:
   media_types:
     - name: Zargus push
       type: WEBHOOK
-      description: "Instant push alerts to the Zargus Android app (Zargus Cloud). Setup: change the endpoint, apiKey and topic parameters to the values shown in the app under Settings > Zargus Cloud, then add this media type to your user (User settings > Media) and include it in a trigger action (Problem/Recovery/Update operations). Multiple people on one server: leave apiKey/topic as-is and have each person paste their app Send-to value (Settings > Zargus Cloud) into the Send to field of their user media — {ALERT.SENDTO} routes every notification to their own account."
+      description: "Instant push alerts to the Zargus Android app (Zargus Cloud). Setup guide: https://zargus.app/webhook — set the topic and apiKey parameters to the values shown in the app under Settings > Zargus Cloud (the endpoint is pre-configured for Zargus Cloud; self-hosted relays change it), then add this media type to your user (User settings > Media) and include it in a trigger action (Problem/Recovery/Update operations). Multiple people on one server: leave apiKey/topic as-is and have each person paste their app Send-to value (Settings > Zargus Cloud) into the Send to field of their user media — {ALERT.SENDTO} routes every notification to their own account."
       parameters:
         - name: mode
           value: 'relay'
         - name: endpoint
-          value: 'https://YOUR-FUNCTION-URL/api/send'
-        - name: apiKey
-          value: 'YOUR-ZARGUS-APIKEY'
+          value: 'https://push.zargus.app/api/send'
         - name: topic
           value: 'YOUR-ZARGUS-ACCOUNTID'
+        - name: apiKey
+          value: 'YOUR-ZARGUS-APIKEY'
         - name: sendto
           value: '{ALERT.SENDTO}'
         - name: serverName
